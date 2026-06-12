@@ -26,31 +26,15 @@ El sistema está dividido en dos partes principales:
 - Predicción mediante regresión lineal.
 - Menú desplegable para seleccionar acciones disponibles.
 - Diseño minimalista y profesional.
-- Modo claro y modo oscuro.
-- Comunicación entre frontend y backend mediante API.
 
----
 
-## Tecnologías utilizadas
 
-### Frontend
-
-- HTML
-- CSS
-- JavaScript
-- Chart.js
-
-### Backend
-
-- Node.js
-- Express.js
-- MySQL
-- CORS
-- dotenv
 
 ### Análisis y predicción
 
 - Promedio móvil
+- Regresion Lineal
+  
 - Regresión lineal
 - Procesamiento de datos históricos
 
