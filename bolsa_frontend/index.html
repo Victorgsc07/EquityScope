@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EquityScope Analytics</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+   <div class="brand-logo">ES</div>
+      <div>
+        <h1>EquityScope</h1>
+        <p>Market Intelligence</p>
+      </div>
+    </div>
+
+    <nav>
+      <a href="#dashboard" class="active">Dashboard</a>
+      <a href="#acciones">Acciones</a>
+      <a href="#analiticas">Analíticas</a>
+      <a href="#predicciones">Predicciones</a>
+      <a href="#individuales">Consultas individuales</a>
+      <a href="#empresas">Empresas</a>
+      <a href="#precios">Precios</a>
+      <a href="#catalogos">Catálogos</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <section class="hero" id="dashboard">
+      <div>
+        <p class="eyebrow">EquityScope Analytics</p>
+        <h2>EquityScope</h2>
+        <p class="muted">
+          Analiza rendimiento, volatilidad, precios históricos, empresas y predicciones basadas en datos.
+        </p>
+      </div>
+
+      <button id="refreshAllBtn" class="primary">Actualizar todo</button>
+    </section>
+
+    <section class="status-bar">
+      <span id="apiStatus" class="status-dot">● Conectando...</span>
+      <span id="lastUpdate">Sin actualizar</span>
+    </section>
+
+    <section class="cards" id="summaryCards">
+      <article class="card skeleton"></article>
+      <article class="card skeleton"></article>
+      <article class="card skeleton"></article>
+      <article class="card skeleton"></article>
+    </section>
+
+    <section class="grid-two">
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Resumen visual</h3>
+            <p>Top de empresas por rendimiento porcentual.</p>
+          </div>
+        </div>
+
+        <canvas id="topChart" height="120"></canvas>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <h3>Consulta rápida</h3>
+            <p>Busca empresas por nombre, ticker, sector o mercado.</p>
+          </div>
+        </div>
+
+        <div class="inline-form">
+          <input id="quickSearchInput" placeholder="Ej. Apple, AAPL, Tecnología..." />
+          <button id="quickSearchBtn">Buscar</button>
+        </div>
+
+        <div id="quickSearchResults" class="mini-results"></div>
+      </article>
+    </section>
+
+    <section class="panel acciones-panel" id="acciones">
+      <div class="panel-header">
+        <div>
+          <h3>Acciones disponibles</h3>
+          <p>Listado de empresas y tickers registrados en la plataforma.</p>
+        </div>
+
+        <div class="acciones-tools">
+          <input id="accionesSearchInput" placeholder="Filtrar por ticker, nombre, sector..." />
+          <button id="loadAccionesBtn" class="secondary">Actualizar acciones</button>
+        </div>
+      </div>
+
+      <div id="accionesGrid" class="acciones-grid empty">
+        Presiona actualizar para desplegar las acciones disponibles.
+      </div>
+    </section>
+
+    <section class="panel" id="analiticas">
+      <div class="panel-header">
+        <div>
+          <h3>Consultas analíticas</h3>
+          <p>Indicadores financieros calculados a partir de precios históricos.</p>
+        </div>
+
+        <div class="limit-box">
+          <label>Top</label>
+          <input id="limitInput" type="number" min="1" max="50" value="5" />
+        </div>
+      </div>
+
+      <div class="query-grid" id="analyticsButtons"></div>
+
+      <div class="result-header">
+        <h4 id="analyticsTitle">Resultado</h4>
+        <button id="clearAnalyticsBtn" class="ghost">Limpiar</button>
+      </div>
+
+      <div id="analyticsResult" class="table-wrap empty">
+        Selecciona una consulta.
+      </div>
+    </section>
+
+    <section class="panel" id="predicciones">
+      <div class="panel-header">
+        <div>
+          <h3>Predicciones</h3>
+          <p>Estimaciones generadas mediante promedio móvil y regresión lineal simple.</p>
+        </div>
+      </div>
+
+      <form id="prediccionForm" class="prediccion-form">
+        <div>
+          <label>Ticker</label>
+          <select name="ticker" id="prediccionTickerSelect" required>
+            <option value="">Cargando tickers...</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Días a predecir</label>
+          <input name="dias" type="number" min="1" max="60" value="7" required />
+        </div>
+
+        <div>
+          <label>Historial regresión</label>
+          <input name="historial" type="number" min="30" max="365" value="90" required />
+        </div>
+
+        <div>
+          <label>Promedio corto</label>
+          <input name="corto" type="number" min="3" max="60" value="7" required />
+        </div>
+
+        <div>
+          <label>Promedio largo</label>
+          <input name="largo" type="number" min="10" max="200" value="30" required />
+        </div>
+
+        <button class="primary">Calcular predicción</button>
+      </form>
+
+      <div id="prediccionCards" class="prediccion-cards">
+        <article class="prediction-empty">
+          Selecciona un ticker y calcula una predicción.
+        </article>
+      </div>
+
+      <div class="prediction-chart-box">
+        <div class="panel-header small">
+          <div>
+            <h4>Gráfica de regresión lineal</h4>
+            <p>Precio estimado para los próximos días.</p>
+          </div>
+        </div>
+
+        <canvas id="prediccionChart" height="110"></canvas>
+      </div>
+
+      <div class="result-header">
+        <h4>Detalle de predicción</h4>
+        <button id="clearPrediccionBtn" class="ghost" type="button">Limpiar</button>
+      </div>
+
+      <div id="prediccionResult" class="table-wrap empty">
+        Aquí aparecerán los datos detallados de la predicción.
+      </div>
+    </section>
+
+    <section class="panel" id="individuales">
+      <div class="panel-header">
+        <div>
+          <h3>Consultas individuales</h3>
+          <p>Consulta por ID, ticker, comparación o búsqueda personalizada.</p>
+        </div>
+      </div>
+
+      <div class="forms-grid">
+        <form id="getEmpresaByIdForm" class="mini-form">
+          <h4>Empresa por ID</h4>
+          <input name="id" type="number" placeholder="ID empresa" required />
+          <button>Consultar</button>
+        </form>
+
+        <form id="getPrecioByIdForm" class="mini-form">
+          <h4>Precio por ID</h4>
+          <input name="id" type="number" placeholder="ID precio" required />
+          <button>Consultar</button>
+        </form>
+
+        <form id="historialTickerForm" class="mini-form">
+          <h4>Historial por ticker</h4>
+          <input name="ticker" placeholder="Ej. AAPL" required />
+          <button>Consultar</button>
+        </form>
+
+        <form id="compararForm" class="mini-form">
+          <h4>Comparar tickers</h4>
+          <input name="tickers" placeholder="AAPL,MSFT,NVDA" required />
+          <button>Comparar</button>
+        </form>
+      </div>
+
+      <div class="result-header">
+        <h4 id="individualTitle">Resultado individual</h4>
+        <button id="clearIndividualBtn" class="ghost">Limpiar</button>
+      </div>
+
+      <div id="individualResult" class="table-wrap empty">
+        Haz una consulta individual.
+      </div>
+    </section>
+
+    <section class="panel" id="empresas">
+      <div class="panel-header">
+        <div>
+          <h3>Empresas</h3>
+          <p>Administración básica de empresas registradas.</p>
+        </div>
+
+        <button id="loadEmpresasBtn" class="secondary">Cargar empresas</button>
+      </div>
+
+      <form id="empresaForm" class="crud-form">
+        <input type="hidden" name="id_empresa" />
+        <input name="ticker" placeholder="Ticker" required />
+        <input name="nombre" placeholder="Nombre empresa" required />
+        <input name="id_sector" type="number" placeholder="ID sector" required />
+        <input name="id_mercado" type="number" placeholder="ID mercado" required />
+        <input name="pais" placeholder="País" required />
+        <input name="fecha_fundacion" type="date" />
+        <button class="primary">Guardar empresa</button>
+        <button type="button" id="resetEmpresaForm" class="ghost">Nuevo</button>
+      </form>
+
+      <div id="empresasResult" class="table-wrap empty">
+        Carga empresas para ver la tabla.
+      </div>
+    </section>
+
+    <section class="panel" id="precios">
+      <div class="panel-header">
+        <div>
+          <h3>Precios de acciones</h3>
+          <p>Administración de registros históricos de precios.</p>
+        </div>
+
+        <button id="loadPreciosBtn" class="secondary">Cargar precios</button>
+      </div>
+
+      <form id="precioForm" class="crud-form wide">
+        <input type="hidden" name="id_precio" />
+        <input name="id_empresa" type="number" placeholder="ID empresa" required />
+        <input name="fecha" type="date" required />
+        <input name="precio_apertura" type="number" step="0.01" placeholder="Apertura" required />
+        <input name="precio_cierre" type="number" step="0.01" placeholder="Cierre" required />
+        <input name="precio_maximo" type="number" step="0.01" placeholder="Máximo" required />
+        <input name="precio_minimo" type="number" step="0.01" placeholder="Mínimo" required />
+        <input name="volumen" type="number" placeholder="Volumen" required />
+        <button class="primary">Guardar precio</button>
+        <button type="button" id="resetPrecioForm" class="ghost">Nuevo</button>
+      </form>
+
+      <div id="preciosResult" class="table-wrap empty">
+        Carga precios para ver la tabla.
+      </div>
+    </section>
+
+    <section class="grid-two" id="catalogos">
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Sectores</h3>
+          <button id="loadSectoresBtn" class="secondary">Cargar</button>
+        </div>
+
+        <div id="sectoresResult" class="table-wrap empty">
+          Sin datos.
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h3>Mercados</h3>
+          <button id="loadMercadosBtn" class="secondary">Cargar</button>
+        </div>
+
+        <div id="mercadosResult" class="table-wrap empty">
+          Sin datos.
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
